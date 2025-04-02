@@ -21,5 +21,10 @@
   "bugs": {
     "url": "https://github.com/zylpheon/api-menu/issues"
   },
-  "homepage": "https://github.com/zylpheon/api-menu#readme"
+  "homepage": "https://github.com/zylpheon/api-menu#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "mysql": "^2.18.1"
+  }
 }
