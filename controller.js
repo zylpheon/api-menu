@@ -17,3 +17,19 @@ exports.tampilSemuaMenu = function (req, res) {
     }
   });
 };
+
+// Menampilkan data menu berdasarkan id
+exports.tampilMenuId = function (req, res) {
+  var id = req.params.id;
+  connection.query(
+    "SELECT * FROM menu WHERE id_menu = ?",
+    [id],
+    function (error, rows, fields) {
+      if (error) {
+        console.log(error);
+      } else {
+        response.ok(rows, res);
+      }
+    }
+  );
+};
