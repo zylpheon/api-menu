@@ -1,7 +1,8 @@
 var mysql = require("mysql");
 
 // Buat koneksi ke database MySQL
-const db = mysql.createConnection({
+const conn = mysql.createConnection({
+  // Changed variable name from 'db' to 'conn'
   host: "localhost",
   user: "root",
   password: "",
