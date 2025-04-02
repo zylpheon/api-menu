@@ -10,4 +10,7 @@ module.exports = function (app) {
 
   // Menampilkan data menu berdasarkan id
   app.route("/tampil/:id").get(jsonku.tampilMenuId);
+
+  // Menambahkan data menu
+  app.route("/tambah").post(jsonku.tambahMenu);
 };
