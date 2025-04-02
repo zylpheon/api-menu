@@ -1,0 +1,25 @@
+{
+  "name": "api-menu",
+  "version": "1.0.0",
+  "description": "api-menu",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zylpheon/api-menu.git"
+  },
+  "keywords": [
+    "node",
+    "js",
+    "phpmyadmin",
+    "javascript"
+  ],
+  "author": "Tino",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zylpheon/api-menu/issues"
+  },
+  "homepage": "https://github.com/zylpheon/api-menu#readme"
+}
