@@ -13,4 +13,7 @@ module.exports = function (app) {
 
   // Menambahkan data menu
   app.route("/tambah").post(jsonku.tambahMenu);
+
+  // Mengubah data menu berdasarkan id
+  app.route("/ubah/:id").put(jsonku.ubahMenu);
 };

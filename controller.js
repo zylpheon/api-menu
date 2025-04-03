@@ -107,3 +107,79 @@ exports.tambahMenu = function (req, res) {
     );
   }
 };
+
+// Mengubah data berdasarkan id
+exports.ubahMenu = function (req, res) {
+  try {
+    // Validasi data yang diperlukan
+    if (!req.body) {
+      return response.ok({ message: "Data tidak boleh kosong" }, res);
+    }
+
+    var id = req.params.id;
+
+    // Validasi ID
+    if (!id) {
+      return response.ok({ message: "ID menu tidak boleh kosong" }, res);
+    }
+
+    // Validasi field yang wajib diisi
+    var title = req.body.title;
+    var price = req.body.price;
+    var category = req.body.category;
+
+    if (!title || !price || !category) {
+      return response.ok(
+        { message: "Field title, price, dan category wajib diisi" },
+        res
+      );
+    }
+
+    var description1 = req.body.description1 || null;
+    var description2 = req.body.description2 || null;
+    var image = req.body.image || null;
+
+    // Debug: log request body
+    console.log("Received PUT data for ID:", id, req.body);
+
+    connection.query(
+      "UPDATE menu SET title = ?, description1 = ?, description2 = ?, price = ?, category = ?, image = ? WHERE id = ?",
+      [title, description1, description2, price, category, image, id],
+      function (error, rows, fields) {
+        if (error) {
+          console.log("Database error:", error);
+          response.ok(
+            { message: "Gagal mengubah data", error: error.message },
+            res
+          );
+        } else {
+          if (rows.affectedRows > 0) {
+            response.ok(
+              {
+                message: "Data berhasil diubah",
+                data: {
+                  id: id,
+                  title: title,
+                  price: price,
+                  category: category,
+                },
+              },
+              res
+            );
+          } else {
+            response.ok(
+              { message: "Data menu dengan ID " + id + " tidak ditemukan" },
+              res
+            );
+          }
+        }
+      }
+    );
+  } catch (error) {
+    console.log("Exception caught:", error);
+    response.ok(
+      { message: "Terjadi kesalahan pada server", error: error.message },
+      res
+    );
+  }
+};
