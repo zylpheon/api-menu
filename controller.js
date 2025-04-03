@@ -26,7 +26,7 @@ exports.tampilSemuaMenu = function (req, res) {
 exports.tampilMenuId = function (req, res) {
   var id = req.params.id;
   connection.query(
-    "SELECT * FROM menu WHERE id_menu = ?",
+    "SELECT * FROM menu WHERE id = ?",
     [id],
     function (error, rows, fields) {
       if (error) {

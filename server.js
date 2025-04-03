@@ -1,14 +1,14 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const morgan = require("morgan");
 const app = express();
 
-// Parse URL-encoded bodies (as sent by HTML forms)
+// Middleware
+app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Parse JSON bodies (as sent by API clients)
 app.use(bodyParser.json());
 
-// Middleware untuk menangani CORS
+// CORS middleware
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware untuk debugging request
+// Debug middleware
 app.use((req, res, next) => {
   if (req.method === "POST") {
     console.log(
@@ -34,18 +34,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import routes
+// Auth routes
+app.use("/auth", require("./middleware"));
+
+// API routes
 var routes = require("./routes");
 routes(app);
 
-// Middleware untuk menangani URL yang tidak ada
+// Error handlers
 app.use((req, res, next) => {
   const error = new Error("Not Found");
   error.status = 404;
   next(error);
 });
 
-// Error handler
 app.use((error, req, res, next) => {
   res.status(error.status || 500);
   res.json({
@@ -54,6 +56,7 @@ app.use((error, req, res, next) => {
   });
 });
 
+// Start server
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

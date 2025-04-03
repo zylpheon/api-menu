@@ -1,7 +1,7 @@
 var connection = require("../koneksi");
 var mysql = require("mysql");
 var md5 = require("md5");
-var response = require("./res");
+var response = require("../res"); // Perhatikan path ini, mungkin perlu disesuaikan
 var jwt = require("jsonwebtoken");
 var config = require("../config/secret");
 var ip = require("ip");
@@ -12,11 +12,11 @@ exports.registrasi = function (req, res) {
     username: req.body.username,
     email: req.body.email,
     password: md5(req.body.password),
-    role: req.body.role,
+    role: parseInt(req.body.role) || 2, // Konversi ke integer, default 2 jika tidak ada
     tanggal_daftar: new Date(),
   };
 
-  var query = "SELECT email FROM ?? WHERE ??";
+  var query = "SELECT email FROM ?? WHERE ?? = ?";
   var table = ["user", "email", post.email];
 
   query = mysql.format(query, table);
