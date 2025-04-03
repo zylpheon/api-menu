@@ -183,3 +183,50 @@ exports.ubahMenu = function (req, res) {
     );
   }
 };
+
+// Menghapus data berdasarkan id
+exports.hapusMenu = function (req, res) {
+  try {
+    var id = req.params.id;
+
+    // Validasi ID
+    if (!id) {
+      return response.ok({ message: "ID menu tidak boleh kosong" }, res);
+    }
+
+    // Debug: log request body
+    console.log("Received DELETE request for ID:", id);
+
+    connection.query(
+      "DELETE FROM menu WHERE id = ?",
+      [id],
+      function (error, rows, fields) {
+        if (error) {
+          console.log("Database error:", error);
+          return response.ok(
+            { message: "Gagal menghapus data", error: error.message },
+            res
+          );
+        } else {
+          if (rows.affectedRows > 0) {
+            return response.ok(
+              { message: "Data berhasil dihapus", id: id },
+              res
+            );
+          } else {
+            return response.ok(
+              { message: "Data menu dengan ID " + id + " tidak ditemukan" },
+              res
+            );
+          }
+        }
+      }
+    );
+  } catch (error) {
+    console.log("Exception caught:", error);
+    return response.ok(
+      { message: "Terjadi kesalahan pada server", error: error.message },
+      res
+    );
+  }
+};

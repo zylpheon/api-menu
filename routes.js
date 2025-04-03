@@ -16,4 +16,7 @@ module.exports = function (app) {
 
   // Mengubah data menu berdasarkan id
   app.route("/ubah/:id").put(jsonku.ubahMenu);
+
+  // Menghapus data menu berdasarkan id
+  app.route("/hapus/:id").delete(jsonku.hapusMenu);
 };
