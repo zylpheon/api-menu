@@ -69,6 +69,20 @@
       return fetch(url, options);
     }
     
+    // Pre-warm ngrok connection
+    async function preWarmNgrok() {
+      try {
+        console.log("Pre-warming ngrok connection...");
+        await fetchWithHeaders(`${API_URL}/`);
+        console.log("Prewarming ngrok complete");
+      } catch (e) {
+        console.log("Prewarming attempt failed:", e);
+      }
+    }
+    
+    // Call this function immediately
+    preWarmNgrok();
+    
     // Check API connection first
     async function checkAPIConnection() {
       connectionStatus.textContent = "Checking API connection...";

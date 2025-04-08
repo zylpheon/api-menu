@@ -1,9 +1,137 @@
+:root {
+  /* Color Palette */
+  --1: #391e10;
+  --2: #683b24;
+  --3: #734128;
+  --4: #c7a07a;
+  --5: #e2ceb1;
+  --6: #fdfce8;
+  --black: #000;
+  --white: #fff;
+}
+
+body {
+  background-color: var(--6);
+  color: var(--1);
+}
+
+/* Navbar styling */
+.navbar-dark.bg-primary {
+  background-color: var(--2) !important;
+}
+
+.navbar-dark .navbar-brand {
+  color: var(--6);
+}
+
+.btn-outline-light {
+  color: var(--5);
+  border-color: var(--5);
+}
+
+.btn-outline-light:hover {
+  background-color: var(--3);
+  border-color: var(--5);
+}
+
+/* Card styling */
+.card {
+  border-color: var(--4);
+  background-color: var(--white);
+}
+
+.card-header {
+  background-color: var(--3) !important;
+  color: var(--6) !important;
+}
+
+.card-body {
+  background-color: var(--white);
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: var(--3);
+  border-color: var(--3);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--2);
+  border-color: var(--2);
+}
+
+.btn-success {
+  background-color: #2c6e49;
+  border-color: #2c6e49;
+}
+
+.btn-danger {
+  background-color: #9e2a2b;
+  border-color: #9e2a2b;
+}
+
+.btn-secondary {
+  background-color: var(--4);
+  border-color: var(--4);
+  color: var(--1);
+}
+
+.btn-secondary:hover {
+  background-color: var(--5);
+  border-color: var(--5);
+  color: var(--1);
+}
+
+/* Table styling */
+.table {
+  color: var(--1);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--6);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--5);
+}
+
+/* Form controls */
+.form-control:focus {
+  border-color: var(--4);
+  box-shadow: 0 0 0 0.25rem rgba(199, 160, 122, 0.25);
+}
+
+/* Alert styling */
+.alert-info {
+  background-color: var(--5);
+  border-color: var(--4);
+  color: var(--1);
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border-color: #f5c2c7;
+  color: #842029;
+}
+
+.alert-success {
+  background-color: #d1e7dd;
+  border-color: #badbcc;
+  color: #0f5132;
+}
+
+/* Loading spinner */
 .loading-spinner {
   display: none;
   text-align: center;
   padding: 20px;
 }
 
+.spinner-border.text-primary {
+  color: var(--3) !important;
+}
+
+/* Toast container */
 .toast-container {
   position: fixed;
   top: 20px;
@@ -11,16 +139,44 @@
   z-index: 1050;
 }
 
+.toast {
+  background-color: var(--white);
+  border-color: var(--4);
+}
+
+.toast-header {
+  background-color: var(--5);
+  color: var(--1);
+}
+
+/* Debug info */
 #debugInfo {
   font-family: monospace;
   font-size: 12px;
   padding: 10px;
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
+  background-color: var(--6);
+  border: 1px solid var(--4);
   border-radius: 4px;
   white-space: pre-wrap;
   max-height: 300px;
   overflow-y: auto;
   margin-top: 20px;
   display: none;
+  color: var(--1);
+}
+
+/* Modal styling */
+.modal-content {
+  background-color: var(--white);
+  border-color: var(--4);
+}
+
+.modal-header {
+  background-color: var(--3);
+  color: var(--6);
+  border-bottom-color: var(--4);
+}
+
+.modal-footer {
+  border-top-color: var(--4);
 }
