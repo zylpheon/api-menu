@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Admin Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="#">Menu Admin Dashboard</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <button id="toggleDebugBtn" class="btn btn-outline-light btn-sm">
+                Show Debug Info
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+      <!-- Notification Toasts -->
+      <div class="toast-container"></div>
+
+      <!-- API Connection Status -->
+      <div class="alert alert-info mb-4" id="connectionStatus">
+        Connecting to API...
+      </div>
+
+      <!-- Debug Information -->
+      <div id="debugInfo"></div>
+
+      <!-- Loading Spinner -->
+      <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Main Card -->
+      <div class="card shadow-sm">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0">Daftar Menu</h5>
+          <button
+            type="button"
+            class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#addMenuModal"
+          >
+            <i class="bi bi-plus-circle"></i> Tambah Menu
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nama Menu</th>
+                  <th>Kategori</th>
+                  <th>Harga</th>
+                  <th>Deskripsi Singkat</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="menuTable">
+                <!-- Menu data will be loaded here -->
+                <tr>
+                  <td colspan="6" class="text-center">Loading data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Menu Modal -->
+    <div
+      class="modal fade"
+      id="addMenuModal"
+      tabindex="-1"
+      aria-labelledby="addMenuModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addMenuModalLabel">Tambah Menu Baru</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addMenuForm">
+              <div class="mb-3">
+                <label for="title" class="form-label">Nama Menu</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="title"
+                  name="title"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="category" class="form-label">Kategori</label>
+                <select
+                  class="form-select"
+                  id="category"
+                  name="category"
+                  required
+                >
+                  <option value="">Pilih Kategori</option>
+                  <option value="Cakes">Cakes</option>
+                  <option value="Bakery">Bakery</option>
+                  <option value="Bread">Bread</option>
+                  <option value="Minuman">Minuman</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="price" class="form-label">Harga (Rp)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="price"
+                  name="price"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="description1" class="form-label"
+                  >Deskripsi Singkat</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="description1"
+                  name="description1"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="description2" class="form-label"
+                  >Deskripsi Lengkap</label
+                >
+                <textarea
+                  class="form-control"
+                  id="description2"
+                  name="description2"
+                  rows="3"
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="image" class="form-label">URL Gambar</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="image"
+                  name="image"
+                  placeholder="URL gambar..."
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button type="button" class="btn btn-primary" id="saveMenuBtn">
+              Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Menu Modal -->
+    <div
+      class="modal fade"
+      id="editMenuModal"
+      tabindex="-1"
+      aria-labelledby="editMenuModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editMenuModalLabel">Edit Menu</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editMenuForm">
+              <input type="hidden" id="edit_id" />
+              <div class="mb-3">
+                <label for="edit_title" class="form-label">Nama Menu</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="edit_title"
+                  name="title"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="edit_category" class="form-label">Kategori</label>
+                <select
+                  class="form-select"
+                  id="edit_category"
+                  name="category"
+                  required
+                >
+                  <option value="">Pilih Kategori</option>
+                  <option value="Cakes">Cakes</option>
+                  <option value="Bakery">Bakery</option>
+                  <option value="Bread">Bread</option>
+                  <option value="Minuman">Minuman</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="edit_price" class="form-label">Harga (Rp)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="edit_price"
+                  name="price"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="edit_description1" class="form-label"
+                  >Deskripsi Singkat</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="edit_description1"
+                  name="description1"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="edit_description2" class="form-label"
+                  >Deskripsi Lengkap</label
+                >
+                <textarea
+                  class="form-control"
+                  id="edit_description2"
+                  name="description2"
+                  rows="3"
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="edit_image" class="form-label">URL Gambar</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="edit_image"
+                  name="image"
+                  placeholder="URL gambar..."
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button type="button" class="btn btn-primary" id="updateMenuBtn">
+              Update
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      class="modal fade"
+      id="deleteMenuModal"
+      tabindex="-1"
+      aria-labelledby="deleteMenuModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteMenuModalLabel">
+              Konfirmasi Hapus
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Apakah Anda yakin ingin menghapus menu
+              <span id="deleteMenuName" class="fw-bold"></span>?
+            </p>
+            <p class="text-danger">
+              <small>Tindakan ini tidak dapat dibatalkan.</small>
+            </p>
+            <input type="hidden" id="delete_id" />
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 and JS Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="admin/admin.js"></script>
+  </body>
+</html>
+<!-- End of HTML Document -->

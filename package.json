@@ -1,0 +1,40 @@
+{
+  "name": "api-menu",
+  "version": "1.0.0",
+  "description": "api-menu",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zylpheon/api-menu.git"
+  },
+  "keywords": [
+    "node",
+    "js",
+    "phpmyadmin",
+    "javascript"
+  ],
+  "author": "Tino",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zylpheon/api-menu/issues"
+  },
+  "homepage": "https://github.com/zylpheon/api-menu#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "ip": "^2.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "md5": "^2.3.0",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

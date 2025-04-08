@@ -1,0 +1,26 @@
+.loading-spinner {
+  display: none;
+  text-align: center;
+  padding: 20px;
+}
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+}
+
+#debugInfo {
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 20px;
+  display: none;
+}
