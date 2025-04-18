@@ -13,6 +13,31 @@
 body {
   background-color: var(--6);
   color: var(--1);
+  font-family: "Patrick Hand", cursive;
+}
+
+/* Linear gradient background for navbar */
+.linear-color {
+  background: linear-gradient(to right, var(--2), var(--3), #734128, #683b24) !important;
+}
+
+/* Debug info with vertical padding */
+#debugInfo {
+  font-family: monospace;
+  font-size: 12px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: var(--6);
+  border: 1px solid var(--4);
+  border-radius: 4px;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 20px;
+  display: none;
+  color: var(--1);
 }
 
 /* Navbar styling */
@@ -38,6 +63,113 @@ body {
 .card {
   border-color: var(--4);
   background-color: var(--white);
+  box-shadow: 0 6px 15px -3px rgba(57, 30, 16, 0.15), 0 4px 6px -4px rgba(57, 30, 16, 0.1);
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+.card:hover {
+  box-shadow: 0 10px 25px -5px rgba(57, 30, 16, 0.2), 0 8px 10px -6px rgba(57, 30, 16, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Table styling with under shadow for rows */
+.table-hover tbody tr {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--5);
+  box-shadow: 0 4px 12px -2px rgba(57, 30, 16, 0.15);
+  z-index: 1;
+  transform: scale(1.01);
+}
+
+/* Enhanced debug info with inset and under shadow */
+#debugInfo {
+  font-family: monospace;
+  font-size: 12px;
+  padding: 15px;
+  background-color: var(--6);
+  border: 1px solid var(--4);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 1.5rem 0;
+  display: none;
+  color: var(--1);
+  box-shadow: 
+    inset 0 2px 4px rgba(57, 30, 16, 0.05),
+    0 8px 16px -4px rgba(57, 30, 16, 0.1),
+    0 4px 6px -5px rgba(57, 30, 16, 0.15);
+}
+
+/* Connection status with floating effect */
+#connectionStatus {
+  box-shadow: 
+    0 6px 12px -2px rgba(57, 30, 16, 0.1),
+    0 3px 7px -3px rgba(57, 30, 16, 0.05);
+  border-left: 4px solid var(--4);
+  transition: all 0.3s ease;
+}
+
+/* Enhanced button styling with under shadow */
+.btn {
+  box-shadow: 0 4px 6px -1px rgba(57, 30, 16, 0.1), 0 2px 4px -2px rgba(57, 30, 16, 0.05);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(57, 30, 16, 0.15), 0 4px 6px -4px rgba(57, 30, 16, 0.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px 0 rgba(57, 30, 16, 0.1), 0 1px 2px -1px rgba(57, 30, 16, 0.05);
+}
+
+/* Modal content with floating effect */
+.modal-content {
+  box-shadow: 
+    0 20px 25px -5px rgba(57, 30, 16, 0.15),
+    0 8px 10px -6px rgba(57, 30, 16, 0.1);
+  border: 1px solid var(--4);
+  overflow: hidden;
+}
+
+/* Form controls with subtle depth */
+.form-control, .form-select {
+  box-shadow: 
+    inset 0 2px 4px 0 rgba(57, 30, 16, 0.05),
+    0 1px 2px 0 rgba(57, 30, 16, 0.05);
+  transition: all 0.2s ease;
+  border: 1px solid var(--4);
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: 
+    0 0 0 3px rgba(199, 160, 122, 0.25),
+    inset 0 2px 4px 0 rgba(57, 30, 16, 0.05);
+  border-color: var(--3);
+}
+
+/* Card header with depth */
+.card-header.linear-color {
+  box-shadow: 0 4px 6px -1px rgba(57, 30, 16, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+/* Loading spinner with subtle shadow */
+.loading-spinner {
+  box-shadow: 0 10px 15px -3px rgba(57, 30, 16, 0.1), 0 4px 6px -4px rgba(57, 30, 16, 0.05);
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
 }
 
 .card-header {
@@ -146,22 +278,6 @@ body {
 
 .toast-header {
   background-color: var(--5);
-  color: var(--1);
-}
-
-/* Debug info */
-#debugInfo {
-  font-family: monospace;
-  font-size: 12px;
-  padding: 10px;
-  background-color: var(--6);
-  border: 1px solid var(--4);
-  border-radius: 4px;
-  white-space: pre-wrap;
-  max-height: 300px;
-  overflow-y: auto;
-  margin-top: 20px;
-  display: none;
   color: var(--1);
 }
 

@@ -1,38 +1,46 @@
-const jwt = require("jsonwebtoken");
-const config = require("../config/secret");
+const jwt = require('jsonwebtoken');
+const config = require('../config/secret');
 
-function verifikasi(roles) {
-  // Typo: 'fuction' → 'function'
-  return function (req, res, next) {
-    // Cek authorization header
-    var tokenWithBearer = req.headers["authorization"];
-    if (tokenWithBearer) {
-      var token = tokenWithBearer.split(" ")[1];
-
-      // Verifikasi token
-      jwt.verify(token, config.secret, function (err, decoded) {
-        if (err) {
-          return res
-            .status(401)
-            .send({ auth: false, message: "Token tidak valid!" }); // Kekurangan kurung kurawal
+// Middleware untuk verifikasi role
+module.exports = function(requiredRole) {
+  return function(req, res, next) {
+    // Get auth header value
+    const bearerHeader = req.headers['authorization'];
+    
+    // Check if bearer is undefined
+    if(typeof bearerHeader !== 'undefined') {
+      // Split at the space
+      const bearer = bearerHeader.split(' ');
+      // Get token from array
+      const bearerToken = bearer[1];
+      
+      // Verify token
+      jwt.verify(bearerToken, config.secret, function(err, decoded) {
+        if(err) {
+          return res.status(401).json({
+            status: 401,
+            message: 'Token tidak valid'
+          });
         } else {
-          if (roles == 2) {
-            req.auth = decoded;
-            next();
-          } else {
-            return res
-              .status(401)
-              .send({ auth: false, message: "Anda bukan admin!" }); // Kekurangan kurung kurawal
+          // Check role
+          if(requiredRole && decoded.role !== requiredRole) {
+            return res.status(403).json({
+              status: 403,
+              message: 'Akses ditolak, role tidak sesuai'
+            });
           }
+          
+          // Set user data to request
+          req.auth = decoded;
+          next();
         }
       });
     } else {
-      // Ini harusnya berada di luar blok verify
-      return res
-        .status(401)
-        .send({ auth: false, message: "Token tidak ditemukan!" }); // Kekurangan kurung kurawal
+      // Forbidden
+      return res.status(403).json({
+        status: 403,
+        message: 'Tidak ada token yang tersedia'
+      });
     }
-  };
-}
-
-module.exports = verifikasi;
+  }
+};

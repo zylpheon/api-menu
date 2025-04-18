@@ -6,11 +6,11 @@ var response = require("../res");
 // Controller untuk registrasi
 exports.registrasi = function (req, res) {
   var post = {
-    username: req.body.username,
+    name: req.body.name,
     email: req.body.email,
     password: md5(req.body.password),
-    role: parseInt(req.body.role) || 2, // Konversi ke integer, default 2 jika tidak ada
-    tanggal_daftar: new Date(),
+    role: req.body.role || 'user', // Default to 'user' if not specified
+    created_at: new Date()
   };
 
   var query = "SELECT email FROM ?? WHERE ?? = ?";
@@ -87,7 +87,7 @@ exports.login = function (req, res) {
         success: true,
         user_data: {
           id: rows[0].id,
-          username: rows[0].username,
+          name: rows[0].name,
           email: rows[0].email,
           role: rows[0].role,
         },
@@ -97,8 +97,7 @@ exports.login = function (req, res) {
   });
 };
 
-var verifikasi = require("./verifikasi");
-
+// Halaman yang memerlukan otorisasi
 exports.halamanrahasia = function (req, res) {
   response.ok({ message: "Selamat datang di halaman rahasia" }, res);
 };

@@ -43,20 +43,14 @@ preWarmNgrok();
 // Event Listeners
 document.addEventListener("DOMContentLoaded", function () {
   // Initialize Bootstrap modals
-  addMenuModal = new bootstrap.Modal(
-    document.getElementById("addMenuModal")
-  );
-  editMenuModal = new bootstrap.Modal(
-    document.getElementById("editMenuModal")
-  );
+  addMenuModal = new bootstrap.Modal(document.getElementById("addMenuModal"));
+  editMenuModal = new bootstrap.Modal(document.getElementById("editMenuModal"));
   deleteMenuModal = new bootstrap.Modal(
     document.getElementById("deleteMenuModal")
   );
 
   // Add event listeners
-  document
-    .getElementById("saveMenuBtn")
-    .addEventListener("click", addMenu);
+  document.getElementById("saveMenuBtn").addEventListener("click", addMenu);
   document
     .getElementById("updateMenuBtn")
     .addEventListener("click", updateMenu);
@@ -68,10 +62,10 @@ document.addEventListener("DOMContentLoaded", function () {
   toggleDebugBtn.addEventListener("click", function () {
     if (debugInfo.style.display === "none") {
       debugInfo.style.display = "block";
-      toggleDebugBtn.textContent = "Hide Debug Info";
+      this.innerHTML = '<i class="bi bi-bug"></i> Hide Debug Info';
     } else {
       debugInfo.style.display = "none";
-      toggleDebugBtn.textContent = "Show Debug Info";
+      this.innerHTML = '<i class="bi bi-bug"></i> Show Debug Info';
     }
   });
 
@@ -129,8 +123,7 @@ async function checkAPIConnection() {
 
               // Beri petunjuk dan tombol cek ulang
               this.disabled = true;
-              this.textContent =
-                "Jendela dibuka, klik Visit Site di sana";
+              this.textContent = "Jendela dibuka, klik Visit Site di sana";
 
               // Cek ulang setelah beberapa detik
               setTimeout(checkAPIConnection, 5000);
@@ -175,13 +168,23 @@ function logDebug(title, data) {
 
   const debugEntry = document.createElement("div");
   debugEntry.className = "mb-3 p-2 border-bottom";
-  debugEntry.textContent = debugText;
+  
+  // Create a pre element for better formatting of code and JSON
+  const pre = document.createElement("pre");
+  pre.className = "mb-0 text-wrap";
+  pre.style.whiteSpace = "pre-wrap";
+  pre.style.fontSize = "0.875rem";
+  pre.textContent = debugText;
+  
+  debugEntry.appendChild(pre);
 
-  debugInfo.prepend(debugEntry);
+  // Find the debug entries container and prepend the new entry
+  const entriesContainer = debugInfo.querySelector('.debug-entries');
+  entriesContainer.prepend(debugEntry);
 
   // Limit number of entries
-  if (debugInfo.children.length > 10) {
-    debugInfo.removeChild(debugInfo.lastChild);
+  if (entriesContainer.children.length > 10) {
+    entriesContainer.removeChild(entriesContainer.lastChild);
   }
 
   console.log(title, data);
@@ -215,10 +218,7 @@ async function loadMenus() {
     }
   } catch (error) {
     console.error("Error loading menus:", error);
-    showNotification(
-      "Gagal memuat data menu: " + error.message,
-      "danger"
-    );
+    showNotification("Gagal memuat data menu: " + error.message, "danger");
 
     // Show empty table with error message
     menuTable.innerHTML = `
@@ -233,8 +233,8 @@ async function loadMenus() {
 
 // Render menu table with data
 function renderMenuTable(menus) {
-  menuTable.innerHTML = '';
-  
+  menuTable.innerHTML = "";
+
   if (menus.length === 0) {
     menuTable.innerHTML = `
       <tr>
@@ -243,12 +243,12 @@ function renderMenuTable(menus) {
     `;
     return;
   }
-  
-  menus.forEach(menu => {
+
+  menus.forEach((menu) => {
     const title = escapeHtml(menu.title || "");
     const category = escapeHtml(menu.category || "");
     const desc = escapeHtml(menu.description1 || "-");
-    
+
     menuTable.innerHTML += `
       <tr>
         <td>${menu.id}</td>
@@ -269,20 +269,20 @@ function renderMenuTable(menus) {
       </tr>
     `;
   });
-  
+
   // Add event listeners to edit buttons
-  document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
       fetchSingleMenu(id);
     });
   });
-  
+
   // Add event listeners to delete buttons
-  document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      const name = this.getAttribute('data-name');
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const id = this.getAttribute("data-id");
+      const name = this.getAttribute("data-name");
       openDeleteModal(id, name);
     });
   });
@@ -295,18 +295,18 @@ async function fetchSingleMenu(id) {
     // First try with /tampil/{id} endpoint if available
     let response = await fetchWithHeaders(`${API_URL}/tampil/${id}`);
     let responseText = await response.text();
-    
+
     logDebug(`Fetching menu item with ID: ${id}`, responseText);
 
     try {
       const data = JSON.parse(responseText);
-      
+
       if (data.status === 200 && data.values) {
         // If API returns values directly
         if (Array.isArray(data.values) && data.values.length > 0) {
           // If values is an array, take the first item
           openEditModal(data.values[0]);
-        } else if (typeof data.values === 'object') {
+        } else if (typeof data.values === "object") {
           // If values is a single object
           openEditModal(data.values);
         } else {
@@ -317,10 +317,10 @@ async function fetchSingleMenu(id) {
         response = await fetchWithHeaders(`${API_URL}/tampil`);
         responseText = await response.text();
         const allData = JSON.parse(responseText);
-        
+
         if (allData.status === 200 && Array.isArray(allData.values)) {
-          const menuItem = allData.values.find(item => item.id == id);
-          
+          const menuItem = allData.values.find((item) => item.id == id);
+
           if (menuItem) {
             openEditModal(menuItem);
           } else {
@@ -341,7 +341,7 @@ async function fetchSingleMenu(id) {
   }
 }
 
-// Add new menu
+// Add new menu with file upload
 async function addMenu() {
   const form = document.getElementById("addMenuForm");
 
@@ -351,27 +351,57 @@ async function addMenu() {
     return;
   }
 
-  const menuData = {
-    title: document.getElementById("title").value,
-    category: document.getElementById("category").value,
-    price: document.getElementById("price").value,
-    description1: document.getElementById("description1").value,
-    description2: document.getElementById("description2").value,
-    image: document.getElementById("image").value,
-  };
+  // Create FormData object to handle file uploads
+  const formData = new FormData();
+  
+  // Get all required fields
+  const title = document.getElementById("title").value.trim();
+  const category = document.getElementById("category").value;
+  const price = document.getElementById("price").value;
+  const description1 = document.getElementById("description1").value.trim();
+  const description2 = document.getElementById("description2").value.trim();
+  
+  // Validate required fields
+  if (!title || !category || !price || !description1 || !description2) {
+    showNotification("Semua field wajib diisi", "danger");
+    return;
+  }
+  
+  // Append form data
+  formData.append("title", title);
+  formData.append("category", category);
+  formData.append("price", price);
+  formData.append("description1", description1);
+  formData.append("description2", description2);
+
+  // Get the file input
+  const imageFile = document.getElementById("image").files[0];
+  if (imageFile) {
+    formData.append("image", imageFile);
+  } else {
+    showNotification("Gambar menu wajib diisi", "danger");
+    return;
+  }
 
   showLoading(true);
   try {
-    // Log the request
-    logDebug("Sending POST request to /tambah", menuData);
+    // Log the request (excluding file data for clarity)
+    logDebug("Sending POST request to /tambah with file upload", {
+      title: document.getElementById("title").value,
+      category: document.getElementById("category").value,
+      price: document.getElementById("price").value,
+      description1: document.getElementById("description1").value,
+      description2: document.getElementById("description2").value,
+      image: "File data not shown in log",
+    });
 
     const response = await fetchWithHeaders(`${API_URL}/tambah`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "ngrok-skip-browser-warning": "1",
+        // Don't set Content-Type here, it will be set automatically with the boundary
       },
-      body: JSON.stringify(menuData),
+      body: formData,
     });
 
     const responseText = await response.text();
@@ -394,26 +424,23 @@ async function addMenu() {
     }
   } catch (error) {
     console.error("Error adding menu:", error);
-    showNotification(
-      "Gagal menambahkan menu: " + error.message,
-      "danger"
-    );
+    showNotification("Gagal menambahkan menu: " + error.message, "danger");
   } finally {
     showLoading(false);
   }
 }
 
-// Open edit modal with menu data
+// Open edit modal with menu data and show current image
 function openEditModal(menu) {
   // Log the menu data for debugging
   logDebug("Opening edit modal with data", menu);
-  
+
   // Ensure menu is an object
-  if (!menu || typeof menu !== 'object') {
+  if (!menu || typeof menu !== "object") {
     showNotification("Data menu tidak valid", "danger");
     return;
   }
-  
+
   // Populate form fields
   document.getElementById("edit_id").value = menu.id || "";
   document.getElementById("edit_title").value = menu.title || "";
@@ -421,16 +448,32 @@ function openEditModal(menu) {
   document.getElementById("edit_price").value = menu.price || 0;
   document.getElementById("edit_description1").value = menu.description1 || "";
   document.getElementById("edit_description2").value = menu.description2 || "";
-  document.getElementById("edit_image").value = menu.image || "";
+  document.getElementById("current_image_path").value = menu.image || "";
+  
+  // Clear file input
+  document.getElementById("edit_image").value = "";
+  
+  // Show current image preview if available
+  const currentImagePreview = document.getElementById("current_image_preview");
+  const previewImg = currentImagePreview.querySelector("img");
+  
+  if (menu.image) {
+    previewImg.src = menu.image.startsWith("http") 
+      ? menu.image 
+      : `${API_URL}/images/${menu.image}`;
+    currentImagePreview.classList.remove("d-none");
+  } else {
+    currentImagePreview.classList.add("d-none");
+  }
 
   // Show the modal
   editMenuModal.show();
-  
+
   // Hide loading spinner
   showLoading(false);
 }
 
-// Update menu
+// Update menu with file upload
 async function updateMenu() {
   const form = document.getElementById("editMenuForm");
 
@@ -441,54 +484,121 @@ async function updateMenu() {
   }
 
   const id = document.getElementById("edit_id").value;
+  
+  // Get all required fields
+  const title = document.getElementById("edit_title").value.trim();
+  const category = document.getElementById("edit_category").value;
+  const price = document.getElementById("edit_price").value;
+  const description1 = document.getElementById("edit_description1").value.trim();
+  const description2 = document.getElementById("edit_description2").value.trim();
+  
+  // Validate required fields
+  if (!title || !category || !price || !description1 || !description2) {
+    showNotification("Semua field wajib diisi", "danger");
+    return;
+  }
+  
+  // Create menu data object
   const menuData = {
-    title: document.getElementById("edit_title").value,
-    category: document.getElementById("edit_category").value,
-    price: document.getElementById("edit_price").value,
-    description1: document.getElementById("edit_description1").value,
-    description2: document.getElementById("edit_description2").value,
-    image: document.getElementById("edit_image").value,
+    title: title,
+    category: category,
+    price: parseFloat(price).toFixed(2), // Ensure decimal format for price
+    description1: description1,
+    description2: description2
   };
-
-  showLoading(true);
-  try {
-    // Log the request
-    logDebug(`Sending PUT request to /ubah/${id}`, menuData);
-
-    const response = await fetchWithHeaders(`${API_URL}/ubah/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "1",
-      },
-      body: JSON.stringify(menuData),
+  
+  // Handle image separately - check if a new image was selected
+  const imageFile = document.getElementById("edit_image").files[0];
+  if (imageFile) {
+    // If new image selected, we need to handle file upload
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    
+    // Add other fields to formData
+    Object.keys(menuData).forEach(key => {
+      formData.append(key, menuData[key]);
     });
-
-    const responseText = await response.text();
-    logDebug("Raw API response from PUT", responseText);
-
+    
+    // Use multipart/form-data for file upload
+    showLoading(true);
     try {
-      const data = JSON.parse(responseText);
-      logDebug("Parsed JSON response from PUT", data);
+      logDebug(`Sending PUT request to /ubah/${id} with file upload`, menuData);
+      
+      const response = await fetchWithHeaders(`${API_URL}/ubah/${id}`, {
+        method: "PUT",
+        body: formData,
+        // Don't set Content-Type header, browser will set it with boundary
+      });
+      
+      const responseText = await response.text();
+      logDebug("Raw API response from PUT", responseText);
 
-      if (data.status === 200) {
-        showNotification("Menu berhasil diperbarui", "success");
-        editMenuModal.hide();
-        loadMenus();
-      } else {
-        throw new Error(data.values?.message || "Gagal memperbarui menu");
+      try {
+        const data = JSON.parse(responseText);
+        logDebug("Parsed JSON response from PUT", data);
+
+        if (data.status === 200) {
+          showNotification("Menu berhasil diperbarui", "success");
+          editMenuModal.hide();
+          loadMenus();
+        } else {
+          throw new Error(data.values?.message || "Gagal memperbarui menu");
+        }
+      } catch (parseError) {
+        throw new Error("Respons API bukan dalam format JSON yang valid");
       }
-    } catch (parseError) {
-      throw new Error("Respons API bukan dalam format JSON yang valid");
+    } catch (error) {
+      console.error("Error updating menu:", error);
+      showNotification("Gagal memperbarui menu: " + error.message, "danger");
+    } finally {
+      showLoading(false);
     }
-  } catch (error) {
-    console.error("Error updating menu:", error);
-    showNotification(
-      "Gagal memperbarui menu: " + error.message,
-      "danger"
-    );
-  } finally {
-    showLoading(false);
+  } else {
+    // If no new image, use the existing image path
+    menuData.image = document.getElementById("current_image_path").value || "";
+    
+    if (!menuData.image) {
+      showNotification("Gambar menu wajib diisi", "danger");
+      return;
+    }
+    
+    // Use JSON for regular update
+    showLoading(true);
+    try {
+      logDebug(`Sending PUT request to /ubah/${id}`, menuData);
+      
+      const response = await fetchWithHeaders(`${API_URL}/ubah/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "1",
+        },
+        body: JSON.stringify(menuData),
+      });
+      
+      const responseText = await response.text();
+      logDebug("Raw API response from PUT", responseText);
+
+      try {
+        const data = JSON.parse(responseText);
+        logDebug("Parsed JSON response from PUT", data);
+
+        if (data.status === 200) {
+          showNotification("Menu berhasil diperbarui", "success");
+          editMenuModal.hide();
+          loadMenus();
+        } else {
+          throw new Error(data.values?.message || "Gagal memperbarui menu");
+        }
+      } catch (parseError) {
+        throw new Error("Respons API bukan dalam format JSON yang valid");
+      }
+    } catch (error) {
+      console.error("Error updating menu:", error);
+      showNotification("Gagal memperbarui menu: " + error.message, "danger");
+    } finally {
+      showLoading(false);
+    }
   }
 }
 
@@ -511,6 +621,7 @@ async function deleteMenu() {
     const response = await fetchWithHeaders(`${API_URL}/hapus/${id}`, {
       method: "DELETE",
       headers: {
+        "Content-Type": "application/json",
         "ngrok-skip-browser-warning": "1",
       },
     });
@@ -540,16 +651,44 @@ async function deleteMenu() {
   }
 }
 
-// Helper functions
-function formatPrice(price) {
-  return new Intl.NumberFormat("id-ID").format(price);
+// Show notification toast
+function showNotification(message, type = "info") {
+  const toast = document.createElement("div");
+  toast.className = `toast align-items-center text-white bg-${type} border-0`;
+  toast.setAttribute("role", "alert");
+  toast.setAttribute("aria-live", "assertive");
+  toast.setAttribute("aria-atomic", "true");
+
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">
+        ${escapeHtml(message)}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+
+  toastContainer.appendChild(toast);
+
+  const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+  bsToast.show();
+
+  // Remove toast after it's hidden
+  toast.addEventListener("hidden.bs.toast", function () {
+    toast.remove();
+  });
 }
 
+// Show/hide loading spinner
 function showLoading(show) {
-  loadingSpinner.style.display = show ? "block" : "none";
+  if (show) {
+    loadingSpinner.style.display = "flex";
+  } else {
+    loadingSpinner.style.display = "none";
+  }
 }
 
-// Escape HTML to prevent XSS
+// Helper function to escape HTML
 function escapeHtml(unsafe) {
   if (typeof unsafe !== "string") return "";
   return unsafe
@@ -560,26 +699,7 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
-function showNotification(message, type) {
-  const toastId = "toast-" + Date.now();
-  const toastHtml = `
-    <div id="${toastId}" class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body">
-          ${message}
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-    </div>
-  `;
-
-  toastContainer.insertAdjacentHTML("beforeend", toastHtml);
-  const toastElement = document.getElementById(toastId);
-  const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
-  toast.show();
-
-  // Remove toast from DOM after it's hidden
-  toastElement.addEventListener("hidden.bs.toast", function () {
-    toastElement.remove();
-  });
+// Helper function to format price
+function formatPrice(price) {
+  return parseFloat(price).toLocaleString("id-ID");
 }

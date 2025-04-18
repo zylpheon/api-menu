@@ -48,8 +48,15 @@ exports.tampilMenuId = function (req, res) {
 };
 
 // Menambahkan data menu
+// Update the tambahMenu function to handle file uploads
 exports.tambahMenu = function (req, res) {
   try {
+    // Log the request for debugging
+    console.log("[" + new Date().toISOString() + "] POST request to /tambah");
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+    console.log("File:", req.file);
+
     // Validasi data yang diperlukan
     if (!req.body) {
       return response.ok({ message: "Data tidak boleh kosong" }, res);
@@ -58,60 +65,67 @@ exports.tambahMenu = function (req, res) {
     var title = req.body.title;
     var price = req.body.price;
     var category = req.body.category;
+    var description1 = req.body.description1;
+    var description2 = req.body.description2;
+    
+    // Get image filename from the uploaded file
+    var image = req.file ? req.file.filename : null;
 
     // Validasi field yang wajib diisi
-    if (!title || !price || !category) {
+    if (
+      !title ||
+      !price ||
+      !category ||
+      !description1 ||
+      !description2 ||
+      !image
+    ) {
       return response.ok(
-        { message: "Field title, price, dan category wajib diisi" },
+        {
+          message:
+            "Semua field wajib diisi (title, price, category, description1, description2, image)",
+        },
         res
       );
     }
 
-    var description1 = req.body.description1 || null;
-    var description2 = req.body.description2 || null;
-    var image = req.body.image || null;
-
-    // Debug: log request body
-    console.log("Received POST data:", req.body);
-
+    // Insert data ke database
     connection.query(
-      "INSERT INTO menu (title, description1, description2, price, category, image) VALUES (?, ?, ?, ?, ?, ?)",
-      [title, description1, description2, price, category, image],
+      "INSERT INTO menu (title, price, category, description1, description2, image) VALUES (?, ?, ?, ?, ?, ?)",
+      [title, price, category, description1, description2, image],
       function (error, rows, fields) {
         if (error) {
-          console.log("Database error:", error);
-          response.ok(
-            { message: "Gagal menambahkan data", error: error.message },
+          console.log(error);
+          return response.ok(
+            { message: "Gagal menambahkan menu", error: error.message },
             res
           );
         } else {
-          response.ok(
-            {
-              message: "Data berhasil ditambahkan",
-              data: {
-                id: rows.insertId,
-                title: title,
-                price: price,
-                category: category,
-              },
-            },
+          return response.ok(
+            { message: "Berhasil menambahkan menu baru" },
             res
           );
         }
       }
     );
-  } catch (error) {
-    console.log("Exception caught:", error);
-    response.ok(
-      { message: "Terjadi kesalahan pada server", error: error.message },
+  } catch (err) {
+    console.log(err);
+    return response.ok(
+      { message: "Terjadi kesalahan pada server", error: err.message },
       res
     );
   }
 };
 
-// Mengubah data berdasarkan id
+// Update the ubahMenu function to make image optional
 exports.ubahMenu = function (req, res) {
   try {
+    // Log the request for debugging
+    console.log("[" + new Date().toISOString() + "] PUT request to /ubah");
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+    console.log("File:", req.file);
+
     // Validasi data yang diperlukan
     if (!req.body) {
       return response.ok({ message: "Data tidak boleh kosong" }, res);
@@ -128,62 +142,80 @@ exports.ubahMenu = function (req, res) {
     var title = req.body.title;
     var price = req.body.price;
     var category = req.body.category;
+    var description1 = req.body.description1;
+    var description2 = req.body.description2;
+    
+    // Get image filename from the uploaded file or use existing one
+    var image = req.file ? req.file.filename : req.body.image;
 
-    if (!title || !price || !category) {
+    if (!title || !price || !category || !description1 || !description2) {
       return response.ok(
-        { message: "Field title, price, dan category wajib diisi" },
+        {
+          message:
+            "Field title, price, category, description1, description2 wajib diisi",
+        },
         res
       );
     }
 
-    var description1 = req.body.description1 || null;
-    var description2 = req.body.description2 || null;
-    var image = req.body.image || null;
-
-    // Debug: log request body
-    console.log("Received PUT data for ID:", id, req.body);
-
-    connection.query(
-      "UPDATE menu SET title = ?, description1 = ?, description2 = ?, price = ?, category = ?, image = ? WHERE id = ?",
-      [title, description1, description2, price, category, image, id],
-      function (error, rows, fields) {
-        if (error) {
-          console.log("Database error:", error);
-          response.ok(
-            { message: "Gagal mengubah data", error: error.message },
-            res
-          );
-        } else {
-          if (rows.affectedRows > 0) {
-            response.ok(
-              {
-                message: "Data berhasil diubah",
-                data: {
-                  id: id,
-                  title: title,
-                  price: price,
-                  category: category,
-                },
-              },
+    // If updating without changing the image
+    if (!image) {
+      // Get the current image from the database
+      connection.query(
+        "SELECT image FROM menu WHERE id = ?",
+        [id],
+        function (error, rows, fields) {
+          if (error) {
+            console.log(error);
+            return response.ok(
+              { message: "Gagal mengambil data menu", error: error.message },
+              res
+            );
+          } else if (rows.length === 0) {
+            return response.ok(
+              { message: "Menu dengan ID tersebut tidak ditemukan" },
               res
             );
           } else {
-            response.ok(
-              { message: "Data menu dengan ID " + id + " tidak ditemukan" },
-              res
-            );
+            // Use the existing image
+            image = rows[0].image;
+            
+            // Update data di database
+            updateMenuInDatabase(id, title, price, category, description1, description2, image, res);
           }
         }
-      }
-    );
-  } catch (error) {
-    console.log("Exception caught:", error);
-    response.ok(
-      { message: "Terjadi kesalahan pada server", error: error.message },
+      );
+    } else {
+      // Update with the new image
+      updateMenuInDatabase(id, title, price, category, description1, description2, image, res);
+    }
+  } catch (err) {
+    console.log(err);
+    return response.ok(
+      { message: "Terjadi kesalahan pada server", error: err.message },
       res
     );
   }
 };
+
+// Helper function to update menu in database
+function updateMenuInDatabase(id, title, price, category, description1, description2, image, res) {
+  connection.query(
+    "UPDATE menu SET title = ?, price = ?, category = ?, description1 = ?, description2 = ?, image = ? WHERE id = ?",
+    [title, price, category, description1, description2, image, id],
+    function (error, rows, fields) {
+      if (error) {
+        console.log(error);
+        return response.ok(
+          { message: "Gagal mengubah menu", error: error.message },
+          res
+        );
+      } else {
+        return response.ok({ message: "Berhasil mengubah menu" }, res);
+      }
+    }
+  );
+}
 
 // Menghapus data berdasarkan id
 exports.hapusMenu = function (req, res) {

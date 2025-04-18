@@ -6,12 +6,60 @@ if (process.env.NODE_ENV !== "production") {
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const app = express();
+
+// Create uploads directory if it doesn't exist
+const uploadDir = path.join(__dirname, 'uploads');
+const imagesDir = path.join(uploadDir, 'images');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+if (!fs.existsSync(imagesDir)) {
+  fs.mkdirSync(imagesDir);
+}
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, imagesDir);
+  },
+  filename: function (req, file, cb) {
+    // Create a unique filename with original extension
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  }
+});
+
+// File filter to only accept images
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed!'), false);
+  }
+};
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
 
 // Middleware
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Serve static files from uploads directory
+app.use('/images', express.static(path.join(__dirname, 'uploads/images')));
 
 // CORS middleware dengan tambahan konfigurasi untuk ngrok
 app.use((req, res, next) => {
@@ -41,9 +89,9 @@ app.get("/check-ngrok", (req, res) => {
 
 // Debug middleware
 app.use((req, res, next) => {
-  if (req.method === "POST") {
+  if (req.method === "POST" || req.method === "PUT") {
     console.log(
-      `[${new Date().toISOString()}] POST request to ${req.originalUrl}`
+      `[${new Date().toISOString()}] ${req.method} request to ${req.originalUrl}`
     );
     console.log("Headers:", req.headers);
     console.log("Body:", req.body);
@@ -114,3 +162,11 @@ if (process.env.NODE_ENV !== "production") {
 
 // Export the app for Vercel serverless functions
 module.exports = app;
+
+// Log all requests for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} request to ${req.path}`);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  next();
+});
