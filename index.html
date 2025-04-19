@@ -65,7 +65,17 @@
       if (!options.headers) {
         options.headers = {};
       }
+      
+      // Add necessary headers
       options.headers["ngrok-skip-browser-warning"] = "1";
+      options.headers["Content-Type"] = options.headers["Content-Type"] || "application/json";
+      
+      // Add mode: 'cors' to explicitly request CORS
+      options.mode = 'cors';
+      
+      // Add credentials if needed
+      // options.credentials = 'include';
+      
       return fetch(url, options);
     }
     

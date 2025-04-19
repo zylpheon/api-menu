@@ -16,32 +16,34 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Enable CORS
+// Enable CORS - Update this section
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, ngrok-skip-browser-warning");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
   next();
 });
 
-// CORS middleware dengan tambahan konfigurasi untuk ngrok
-app.use((req, res, next) => {
-  // Tambahkan header ngrok-skip-browser-warning ke semua response
-  res.setHeader("ngrok-skip-browser-warning", "1");
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization, ngrok-skip-browser-warning"
-  );
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    return res.status(200).json({});
-  }
-  next();
-});
+// Remove or update this duplicate CORS middleware
+// app.use((req, res, next) => {
+//   // Tambahkan header ngrok-skip-browser-warning ke semua response
+//   res.setHeader("ngrok-skip-browser-warning", "1");
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept, Authorization, ngrok-skip-browser-warning"
+//   );
+//   if (req.method === "OPTIONS") {
+//     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+//     return res.status(200).json({});
+//   }
+//   next();
+// });
 
 // Route khusus untuk ngrok testing
 app.get("/check-ngrok", (req, res) => {

@@ -21,7 +21,11 @@ async function fetchWithHeaders(url, options = {}) {
 
   // Add ngrok skip header
   options.headers["ngrok-skip-browser-warning"] = "1";
-
+  options.headers["Content-Type"] = options.headers["Content-Type"] || "application/json";
+  
+  // Add mode: 'cors' to explicitly request CORS
+  options.mode = 'cors';
+  
   return fetch(url, options);
 }
 
