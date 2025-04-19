@@ -341,7 +341,48 @@ async function fetchSingleMenu(id) {
   }
 }
 
-// Add new menu with file upload
+// Remove the toggleImageInput function if it exists
+// Add this function to preview images from URL if it doesn't exist already
+function previewImageFromUrl(inputId, previewId) {
+  const urlInput = document.getElementById(inputId);
+  const previewContainer = document.getElementById(previewId);
+  
+  if (urlInput.value.trim()) {
+    // Show preview
+    previewContainer.innerHTML = `
+      <div class="mt-2">
+        <p class="mb-1">Preview:</p>
+        <img src="${urlInput.value}" alt="Preview" class="img-thumbnail" style="max-height: 150px;">
+      </div>
+    `;
+  } else {
+    // Clear preview
+    previewContainer.innerHTML = '';
+  }
+}
+
+// Fix the event listener for the edit image URL
+document.addEventListener('DOMContentLoaded', function() {
+  // Add event listeners after DOM is loaded
+  const addImageUrl = document.getElementById('imageUrl');
+  const editImageUrl = document.getElementById('edit_imageUrl');
+  
+  if (addImageUrl) {
+    addImageUrl.addEventListener('blur', function() {
+      previewImageFromUrl('imageUrl', 'imageUrlPreview');
+    });
+  }
+  
+  if (editImageUrl) {
+    editImageUrl.addEventListener('blur', function() {
+      previewImageFromUrl('edit_imageUrl', 'editImageUrlPreview');
+    });
+  }
+  
+  // ... rest of your DOMContentLoaded code ...
+});
+
+// Update the addMenu function to handle only URL
 async function addMenu() {
   const form = document.getElementById("addMenuForm");
 
@@ -351,15 +392,13 @@ async function addMenu() {
     return;
   }
 
-  // Create FormData object to handle file uploads
-  const formData = new FormData();
-  
   // Get all required fields
   const title = document.getElementById("title").value.trim();
   const category = document.getElementById("category").value;
   const price = document.getElementById("price").value;
   const description1 = document.getElementById("description1").value.trim();
   const description2 = document.getElementById("description2").value.trim();
+  const imageUrl = document.getElementById("imageUrl").value.trim();
   
   // Validate required fields
   if (!title || !category || !price || !description1 || !description2) {
@@ -367,41 +406,40 @@ async function addMenu() {
     return;
   }
   
-  // Append form data
-  formData.append("title", title);
-  formData.append("category", category);
-  formData.append("price", price);
-  formData.append("description1", description1);
-  formData.append("description2", description2);
-
-  // Get the file input
-  const imageFile = document.getElementById("image").files[0];
-  if (imageFile) {
-    formData.append("image", imageFile);
-  } else {
-    showNotification("Gambar menu wajib diisi", "danger");
+  // Validate image URL
+  if (!imageUrl) {
+    showNotification("URL gambar menu wajib diisi", "danger");
     return;
   }
+  
+  // Validate URL format
+  const urlRegex = /^(http|https):\/\/[^ "]+$/;
+  if (!urlRegex.test(imageUrl)) {
+    showNotification("Format URL gambar tidak valid", "danger");
+    return;
+  }
+  
+  // Create request data
+  const requestData = {
+    title,
+    category,
+    price,
+    description1,
+    description2,
+    imageUrl
+  };
 
   showLoading(true);
   try {
-    // Log the request (excluding file data for clarity)
-    logDebug("Sending POST request to /tambah with file upload", {
-      title: document.getElementById("title").value,
-      category: document.getElementById("category").value,
-      price: document.getElementById("price").value,
-      description1: document.getElementById("description1").value,
-      description2: document.getElementById("description2").value,
-      image: "File data not shown in log",
-    });
+    // Log the request
+    logDebug("Sending POST request to /tambah with image URL", requestData);
 
     const response = await fetchWithHeaders(`${API_URL}/tambah`, {
       method: "POST",
       headers: {
-        "ngrok-skip-browser-warning": "1",
-        // Don't set Content-Type here, it will be set automatically with the boundary
+        'Content-Type': 'application/json'
       },
-      body: formData,
+      body: JSON.stringify(requestData)
     });
 
     const responseText = await response.text();
@@ -430,7 +468,7 @@ async function addMenu() {
   }
 }
 
-// Open edit modal with menu data and show current image
+// Update the openEditModal function to handle URL only
 function openEditModal(menu) {
   // Log the menu data for debugging
   logDebug("Opening edit modal with data", menu);
@@ -448,22 +486,22 @@ function openEditModal(menu) {
   document.getElementById("edit_price").value = menu.price || 0;
   document.getElementById("edit_description1").value = menu.description1 || "";
   document.getElementById("edit_description2").value = menu.description2 || "";
-  document.getElementById("current_image_path").value = menu.image || "";
   
-  // Clear file input
-  document.getElementById("edit_image").value = "";
+  // Set image URL
+  const imageUrl = menu.image || "";
+  document.getElementById("edit_imageUrl").value = imageUrl;
   
-  // Show current image preview if available
-  const currentImagePreview = document.getElementById("current_image_preview");
-  const previewImg = currentImagePreview.querySelector("img");
-  
-  if (menu.image) {
-    previewImg.src = menu.image.startsWith("http") 
-      ? menu.image 
-      : `${API_URL}/images/${menu.image}`;
-    currentImagePreview.classList.remove("d-none");
+  // Show image preview
+  const previewContainer = document.getElementById("editImageUrlPreview");
+  if (imageUrl) {
+    previewContainer.innerHTML = `
+      <div class="mt-2">
+        <p class="mb-1">Current Image:</p>
+        <img src="${imageUrl}" alt="Current Image" class="img-thumbnail" style="max-height: 150px;">
+      </div>
+    `;
   } else {
-    currentImagePreview.classList.add("d-none");
+    previewContainer.innerHTML = '';
   }
 
   // Show the modal
@@ -473,7 +511,7 @@ function openEditModal(menu) {
   showLoading(false);
 }
 
-// Update menu with file upload
+// Update the updateMenu function to handle URL only
 async function updateMenu() {
   const form = document.getElementById("editMenuForm");
 
@@ -491,6 +529,7 @@ async function updateMenu() {
   const price = document.getElementById("edit_price").value;
   const description1 = document.getElementById("edit_description1").value.trim();
   const description2 = document.getElementById("edit_description2").value.trim();
+  const imageUrl = document.getElementById("edit_imageUrl").value.trim();
   
   // Validate required fields
   if (!title || !category || !price || !description1 || !description2) {
@@ -498,107 +537,63 @@ async function updateMenu() {
     return;
   }
   
-  // Create menu data object
-  const menuData = {
-    title: title,
-    category: category,
-    price: parseFloat(price).toFixed(2), // Ensure decimal format for price
-    description1: description1,
-    description2: description2
-  };
+  // Validate image URL
+  if (!imageUrl) {
+    showNotification("URL gambar menu wajib diisi", "danger");
+    return;
+  }
   
-  // Handle image separately - check if a new image was selected
-  const imageFile = document.getElementById("edit_image").files[0];
-  if (imageFile) {
-    // If new image selected, we need to handle file upload
-    const formData = new FormData();
-    formData.append("image", imageFile);
+  // Validate URL format
+  const urlRegex = /^(http|https):\/\/[^ "]+$/;
+  if (!urlRegex.test(imageUrl)) {
+    showNotification("Format URL gambar tidak valid", "danger");
+    return;
+  }
+  
+  // Create request data object instead of FormData
+  const requestData = {
+    title,
+    category,
+    price: parseFloat(price).toFixed(2),
+    description1,
+    description2,
+    imageUrl
+  };
+
+  showLoading(true);
+  try {
+    logDebug(`Sending PUT request to /ubah/${id} with image URL`, requestData);
     
-    // Add other fields to formData
-    Object.keys(menuData).forEach(key => {
-      formData.append(key, menuData[key]);
+    const response = await fetchWithHeaders(`${API_URL}/ubah/${id}`, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestData)
     });
     
-    // Use multipart/form-data for file upload
-    showLoading(true);
+    const responseText = await response.text();
+    logDebug("Raw API response from PUT", responseText);
+
     try {
-      logDebug(`Sending PUT request to /ubah/${id} with file upload`, menuData);
-      
-      const response = await fetchWithHeaders(`${API_URL}/ubah/${id}`, {
-        method: "PUT",
-        body: formData,
-        // Don't set Content-Type header, browser will set it with boundary
-      });
-      
-      const responseText = await response.text();
-      logDebug("Raw API response from PUT", responseText);
+      const data = JSON.parse(responseText);
+      logDebug("Parsed JSON response from PUT", data);
 
-      try {
-        const data = JSON.parse(responseText);
-        logDebug("Parsed JSON response from PUT", data);
-
-        if (data.status === 200) {
-          showNotification("Menu berhasil diperbarui", "success");
-          editMenuModal.hide();
-          loadMenus();
-        } else {
-          throw new Error(data.values?.message || "Gagal memperbarui menu");
-        }
-      } catch (parseError) {
-        throw new Error("Respons API bukan dalam format JSON yang valid");
+      if (data.status === 200) {
+        showNotification("Menu berhasil diperbarui", "success");
+        editMenuModal.hide();
+        loadMenus();
+      } else {
+        throw new Error(data.values?.message || "Gagal memperbarui menu");
       }
-    } catch (error) {
-      console.error("Error updating menu:", error);
-      showNotification("Gagal memperbarui menu: " + error.message, "danger");
-    } finally {
-      showLoading(false);
+    } catch (parseError) {
+      throw new Error("Respons API bukan dalam format JSON yang valid");
     }
-  } else {
-    // If no new image, use the existing image path
-    menuData.image = document.getElementById("current_image_path").value || "";
-    
-    if (!menuData.image) {
-      showNotification("Gambar menu wajib diisi", "danger");
-      return;
-    }
-    
-    // Use JSON for regular update
-    showLoading(true);
-    try {
-      logDebug(`Sending PUT request to /ubah/${id}`, menuData);
-      
-      const response = await fetchWithHeaders(`${API_URL}/ubah/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "1",
-        },
-        body: JSON.stringify(menuData),
-      });
-      
-      const responseText = await response.text();
-      logDebug("Raw API response from PUT", responseText);
-
-      try {
-        const data = JSON.parse(responseText);
-        logDebug("Parsed JSON response from PUT", data);
-
-        if (data.status === 200) {
-          showNotification("Menu berhasil diperbarui", "success");
-          editMenuModal.hide();
-          loadMenus();
-        } else {
-          throw new Error(data.values?.message || "Gagal memperbarui menu");
-        }
-      } catch (parseError) {
-        throw new Error("Respons API bukan dalam format JSON yang valid");
-      }
-    } catch (error) {
-      console.error("Error updating menu:", error);
-      showNotification("Gagal memperbarui menu: " + error.message, "danger");
-    } finally {
-      showLoading(false);
-    }
+  } catch (error) {
+    console.error("Error updating menu:", error);
+    showNotification("Gagal memperbarui menu: " + error.message, "danger");
+  } finally {
+    showLoading(false);
   }
 }
 

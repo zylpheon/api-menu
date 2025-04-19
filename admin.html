@@ -188,16 +188,12 @@
                   rows="3"
                 ></textarea>
               </div>
+              <!-- Replace the current image input with URL-only input -->
               <div class="mb-3">
-                <label for="image" class="form-label">Gambar Menu</label>
-                <input
-                  type="file"
-                  class="form-control"
-                  id="image"
-                  name="image"
-                  accept="image/*"
-                />
-                <div class="form-text">Pilih file gambar untuk menu</div>
+                <label for="imageUrl" class="form-label">URL Gambar Menu</label>
+                <input type="url" class="form-control" id="imageUrl" placeholder="https://example.com/image.jpg" required>
+                <small class="text-muted">Masukkan URL gambar menu (format: http:// atau https://)</small>
+                <div id="imageUrlPreview"></div>
               </div>
             </form>
           </div>
@@ -298,29 +294,14 @@
                   rows="3"
                 ></textarea>
               </div>
+              <!-- KEEP ONLY THIS SINGLE image URL input field for edit form -->
               <div class="mb-3">
-                <label for="edit_image" class="form-label">Gambar Menu</label>
-                <input
-                  type="file"
-                  class="form-control"
-                  id="edit_image"
-                  name="image"
-                  accept="image/*"
-                />
-                <div class="form-text">
-                  Pilih file gambar baru untuk menu (kosongkan jika tidak ingin
-                  mengubah)
-                </div>
-                <div id="current_image_preview" class="mt-2 d-none">
-                  <p>Gambar saat ini:</p>
-                  <img
-                    src=""
-                    alt="Preview gambar saat ini"
-                    class="img-thumbnail"
-                    style="max-height: 150px"
-                  />
-                </div>
+                <label for="edit_imageUrl" class="form-label">URL Gambar Menu</label>
+                <input type="url" class="form-control" id="edit_imageUrl" placeholder="https://example.com/image.jpg" required>
+                <small class="text-muted">Masukkan URL gambar menu (format: http:// atau https://)</small>
+                <div id="editImageUrlPreview"></div>
               </div>
+              <!-- REMOVE any other image URL input fields in this form -->
             </form>
           </div>
           <div class="modal-footer">

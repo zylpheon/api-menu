@@ -70,7 +70,6 @@ body {
 
 .card:hover {
   box-shadow: 0 10px 25px -5px rgba(57, 30, 16, 0.2), 0 8px 10px -6px rgba(57, 30, 16, 0.1);
-  transform: translateY(-2px);
 }
 
 /* Table styling with under shadow for rows */
@@ -83,7 +82,6 @@ body {
   background-color: var(--5);
   box-shadow: 0 4px 12px -2px rgba(57, 30, 16, 0.15);
   z-index: 1;
-  transform: scale(1.01);
 }
 
 /* Enhanced debug info with inset and under shadow */
@@ -100,7 +98,7 @@ body {
   margin: 1.5rem 0;
   display: none;
   color: var(--1);
-  box-shadow: 
+  box-shadow:
     inset 0 2px 4px rgba(57, 30, 16, 0.05),
     0 8px 16px -4px rgba(57, 30, 16, 0.1),
     0 4px 6px -5px rgba(57, 30, 16, 0.15);
@@ -108,7 +106,7 @@ body {
 
 /* Connection status with floating effect */
 #connectionStatus {
-  box-shadow: 
+  box-shadow:
     0 6px 12px -2px rgba(57, 30, 16, 0.1),
     0 3px 7px -3px rgba(57, 30, 16, 0.05);
   border-left: 4px solid var(--4);
@@ -124,7 +122,7 @@ body {
 }
 
 .btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 10px 15px -3px rgba(57, 30, 16, 0.15), 0 4px 6px -4px rgba(57, 30, 16, 0.1);
 }
 
@@ -135,7 +133,7 @@ body {
 
 /* Modal content with floating effect */
 .modal-content {
-  box-shadow: 
+  box-shadow:
     0 20px 25px -5px rgba(57, 30, 16, 0.15),
     0 8px 10px -6px rgba(57, 30, 16, 0.1);
   border: 1px solid var(--4);
@@ -143,16 +141,18 @@ body {
 }
 
 /* Form controls with subtle depth */
-.form-control, .form-select {
-  box-shadow: 
+.form-control,
+.form-select {
+  box-shadow:
     inset 0 2px 4px 0 rgba(57, 30, 16, 0.05),
     0 1px 2px 0 rgba(57, 30, 16, 0.05);
   transition: all 0.2s ease;
   border: 1px solid var(--4);
 }
 
-.form-control:focus, .form-select:focus {
-  box-shadow: 
+.form-control:focus,
+.form-select:focus {
+  box-shadow:
     0 0 0 3px rgba(199, 160, 122, 0.25),
     inset 0 2px 4px 0 rgba(57, 30, 16, 0.05);
   border-color: var(--3);
@@ -187,7 +187,8 @@ body {
   border-color: var(--3);
 }
 
-.btn-primary:hover, .btn-primary:focus {
+.btn-primary:hover,
+.btn-primary:focus {
   background-color: var(--2);
   border-color: var(--2);
 }
