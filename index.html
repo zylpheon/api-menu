@@ -1,120 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu Admin Login</title>
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="styles/style.css">
-</head>
-<body class="bg-light">
-  <div class="container">
-    <div class="row justify-content-center mt-5">
-      <div class="col-md-6 col-lg-4">
-        <div class="card shadow-sm">
-          <div class="card-header bg-primary text-white text-center">
-            <h4>Admin Login</h4>
-          </div>
-          <div class="card-body p-4">
-            <!-- API Connection Status -->
-            <div id="connectionStatus" class="alert alert-info mb-3 d-none">
-              Checking API connection...
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Admin Login</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <body class="bg-light">
+    <div class="container">
+      <div class="row justify-content-center mt-5">
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white text-center">
+              <h4>Admin Login</h4>
             </div>
-            
-            <div id="loginAlert" class="alert alert-danger d-none">
-              Invalid email or password
+            <div class="card-body p-4">
+              <!-- API Connection Status -->
+              <div id="connectionStatus" class="alert alert-info mb-3 d-none">
+                Checking API connection...
+              </div>
+
+              <div id="loginAlert" class="alert alert-danger d-none">
+                Invalid email or password
+              </div>
+              <form id="loginForm">
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    required
+                  />
+                </div>
+                <div class="d-grid">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="loginButton"
+                  >
+                    Login
+                  </button>
+                </div>
+              </form>
             </div>
-            <form id="loginForm">
-              <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" required>
-              </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" required>
-              </div>
-              <div class="d-grid">
-                <button type="submit" class="btn btn-primary" id="loginButton">Login</button>
-              </div>
-            </form>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Bootstrap 5 JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <script>
-    // API Base URL - Using the same URL as admin.js
-    const API_URL = "https://puma-bold-grubworm.ngrok-free.app";
-    
-    // DOM Elements
-    const connectionStatus = document.getElementById('connectionStatus');
-    const loginAlert = document.getElementById('loginAlert');
-    const loginButton = document.getElementById('loginButton');
-    const loginForm = document.getElementById('loginForm');
-    
-    // Helper function to add ngrok-skip-browser-warning header to all requests
-    async function fetchWithHeaders(url, options = {}) {
-      if (!options.headers) {
-        options.headers = {};
-      }
-      
-      // Add necessary headers
-      options.headers["ngrok-skip-browser-warning"] = "1";
-      options.headers["Content-Type"] = options.headers["Content-Type"] || "application/json";
-      
-      // Add mode: 'cors' to explicitly request CORS
-      options.mode = 'cors';
-      
-      // Add credentials if needed
-      // options.credentials = 'include';
-      
-      return fetch(url, options);
-    }
-    
-    // Pre-warm ngrok connection
-    async function preWarmNgrok() {
-      try {
-        console.log("Pre-warming ngrok connection...");
-        await fetchWithHeaders(`${API_URL}/`);
-        console.log("Prewarming ngrok complete");
-      } catch (e) {
-        console.log("Prewarming attempt failed:", e);
-      }
-    }
-    
-    // Call this function immediately
-    preWarmNgrok();
-    
-    // Check API connection first
-    async function checkAPIConnection() {
-      connectionStatus.textContent = "Checking API connection...";
-      connectionStatus.className = "alert alert-info mb-3";
-      connectionStatus.classList.remove('d-none');
-      
-      try {
-        const response = await fetchWithHeaders(`${API_URL}/`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (response.ok) {
-          connectionStatus.textContent = `Connected to API: ${API_URL}`;
-          connectionStatus.className = "alert alert-success mb-3";
-          return true;
-        } else {
-          throw new Error(`API responded with status: ${response.status}`);
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // API Base URL - Using the same URL as admin.js
+      const API_URL = "https://puma-bold-grubworm.ngrok-free.app";
+
+      // DOM Elements
+      const connectionStatus = document.getElementById("connectionStatus");
+      const loginAlert = document.getElementById("loginAlert");
+      const loginButton = document.getElementById("loginButton");
+      const loginForm = document.getElementById("loginForm");
+
+      // Helper function to add ngrok-skip-browser-warning header to all requests
+      async function fetchWithHeaders(url, options = {}) {
+        if (!options.headers) {
+          options.headers = {};
         }
-      } catch (error) {
-        console.error("API connection error:", error);
-        connectionStatus.innerHTML = `
+
+        // Add necessary headers
+        options.headers["ngrok-skip-browser-warning"] = "1";
+        options.headers["Content-Type"] =
+          options.headers["Content-Type"] || "application/json";
+
+        // Add mode: 'cors' to explicitly request CORS
+        options.mode = "cors";
+
+        // Add credentials if needed
+        // options.credentials = 'include';
+
+        return fetch(url, options);
+      }
+
+      // Pre-warm ngrok connection
+      async function preWarmNgrok() {
+        try {
+          console.log("Pre-warming ngrok connection...");
+          await fetchWithHeaders(`${API_URL}/`);
+          console.log("Prewarming ngrok complete");
+        } catch (e) {
+          console.log("Prewarming attempt failed:", e);
+        }
+      }
+
+      // Call this function immediately
+      preWarmNgrok();
+
+      // Check API connection first
+      async function checkAPIConnection() {
+        connectionStatus.textContent = "Checking API connection...";
+        connectionStatus.className = "alert alert-info mb-3";
+        connectionStatus.classList.remove("d-none");
+
+        try {
+          const response = await fetchWithHeaders(`${API_URL}/`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.ok) {
+            connectionStatus.textContent = `Connected to API: ${API_URL}`;
+            connectionStatus.className = "alert alert-success mb-3";
+            return true;
+          } else {
+            throw new Error(`API responded with status: ${response.status}`);
+          }
+        } catch (error) {
+          console.error("API connection error:", error);
+          connectionStatus.innerHTML = `
           <strong>Failed to connect to API: ${API_URL}</strong><br>
           Possible causes:
           <ul>
@@ -125,95 +148,102 @@
           </ul>
           <button class="btn btn-sm btn-primary" onclick="checkAPIConnection()">Try Again</button>
         `;
-        connectionStatus.className = "alert alert-danger mb-3";
-        return false;
-      }
-    }
-    
-    // Handle login form submission
-    loginForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      // Disable button to prevent multiple submissions
-      loginButton.disabled = true;
-      loginButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logging in...';
-      
-      // Hide previous alerts
-      loginAlert.classList.add('d-none');
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      try {
-        // Check API connection first
-        const isConnected = await checkAPIConnection();
-        if (!isConnected) {
-          throw new Error("API connection failed");
+          connectionStatus.className = "alert alert-danger mb-3";
+          return false;
         }
-        
-        const response = await fetchWithHeaders(`${API_URL}/auth/api/v1/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password })
-        });
-        
-        const data = await response.json();
-        console.log("Login response:", data);
-        
-        // Check if login was successful
-        if (data.values && data.values.success) {
-          // Store user data in sessionStorage
-          sessionStorage.setItem('userData', JSON.stringify(data.values.user_data));
-          console.log("Login successful, redirecting to admin.html");
-          
-          // Force redirect to admin.html
-          window.location.href = 'admin.html';
-        } else {
-          // Show error message
-          loginAlert.textContent = data.values?.message || 'Login failed';
-          loginAlert.classList.remove('d-none');
-        }
-      } catch (error) {
-        console.error('Login error:', error);
-        loginAlert.textContent = 'Connection error. Please try again.';
-        loginAlert.classList.remove('d-none');
-      } finally {
-        // Re-enable button
-        loginButton.disabled = false;
-        loginButton.textContent = 'Login';
       }
-    });
-    
-    // Check if already logged in
-    document.addEventListener('DOMContentLoaded', function() {
-      const userData = sessionStorage.getItem('userData');
-      if (userData) {
+
+      // Handle login form submission
+      loginForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        // Disable button to prevent multiple submissions
+        loginButton.disabled = true;
+        loginButton.innerHTML =
+          '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logging in...';
+
+        // Hide previous alerts
+        loginAlert.classList.add("d-none");
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
         try {
-          // Parse the user data to verify it's valid JSON
-          const parsedData = JSON.parse(userData);
-          if (parsedData && parsedData.id) {
-            console.log("User already logged in, redirecting to admin.html");
-            window.location.href = 'admin.html';
+          // Check API connection first
+          const isConnected = await checkAPIConnection();
+          if (!isConnected) {
+            throw new Error("API connection failed");
+          }
+
+          const response = await fetchWithHeaders(
+            `${API_URL}/auth/api/v1/login`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, password }),
+            }
+          );
+
+          const data = await response.json();
+          console.log("Login response:", data);
+
+          // Check if login was successful
+          if (data.values && data.values.success) {
+            // Store user data in sessionStorage
+            sessionStorage.setItem(
+              "userData",
+              JSON.stringify(data.values.user_data)
+            );
+            console.log("Login successful, redirecting to admin.html");
+
+            // Force redirect to admin.html
+            window.location.href = "admin.html";
           } else {
-            // Invalid user data, clear it
-            sessionStorage.removeItem('userData');
+            // Show error message
+            loginAlert.textContent = data.values?.message || "Login failed";
+            loginAlert.classList.remove("d-none");
+          }
+        } catch (error) {
+          console.error("Login error:", error);
+          loginAlert.textContent = "Connection error. Please try again.";
+          loginAlert.classList.remove("d-none");
+        } finally {
+          // Re-enable button
+          loginButton.disabled = false;
+          loginButton.textContent = "Login";
+        }
+      });
+
+      // Check if already logged in
+      document.addEventListener("DOMContentLoaded", function () {
+        const userData = sessionStorage.getItem("userData");
+        if (userData) {
+          try {
+            // Parse the user data to verify it's valid JSON
+            const parsedData = JSON.parse(userData);
+            if (parsedData && parsedData.id) {
+              console.log("User already logged in, redirecting to admin.html");
+              window.location.href = "admin.html";
+            } else {
+              // Invalid user data, clear it
+              sessionStorage.removeItem("userData");
+              // Check API connection
+              checkAPIConnection();
+            }
+          } catch (e) {
+            // Invalid JSON, clear it
+            console.error("Error parsing user data:", e);
+            sessionStorage.removeItem("userData");
             // Check API connection
             checkAPIConnection();
           }
-        } catch (e) {
-          // Invalid JSON, clear it
-          console.error("Error parsing user data:", e);
-          sessionStorage.removeItem('userData');
+        } else {
           // Check API connection
           checkAPIConnection();
         }
-      } else {
-        // Check API connection
-        checkAPIConnection();
-      }
-    });
-  </script>
-</body>
+      });
+    </script>
+  </body>
 </html>

@@ -8,25 +8,33 @@ const toastContainer = document.querySelector(".toast-container");
 const connectionStatus = document.getElementById("connectionStatus");
 const debugInfo = document.getElementById("debugInfo");
 const toggleDebugBtn = document.getElementById("toggleDebugBtn");
+// Add references to promo section elements
+const menuSection = document.getElementById("menuSection");
+const promoSection = document.getElementById("promoSection");
+const menuNavLink = document.getElementById("menuNavLink");
+const promoNavLink = document.getElementById("promoNavLink");
 
 // Bootstrap Modal Instances
 let addMenuModal, editMenuModal, deleteMenuModal;
 
 // Helper function to add ngrok-skip-browser-warning header to all requests
+// Add this function if it doesn't exist or improve it if it does
 async function fetchWithHeaders(url, options = {}) {
-  // Ensure headers object exists
-  if (!options.headers) {
-    options.headers = {};
-  }
+// Ensure headers object exists
+options.headers = options.headers || {};
 
-  // Add ngrok skip header
-  options.headers["ngrok-skip-browser-warning"] = "1";
-  options.headers["Content-Type"] = options.headers["Content-Type"] || "application/json";
-  
-  // Add mode: 'cors' to explicitly request CORS
-  options.mode = 'cors';
-  
-  return fetch(url, options);
+// Add ngrok-skip-browser-warning header to bypass ngrok warning
+options.headers["ngrok-skip-browser-warning"] = "1";
+
+// Add mode cors
+options.mode = "cors";
+
+try {
+return await fetch(url, options);
+} catch (error) {
+console.error(`Fetch error for ${url}:`, error);
+throw error;
+}
 }
 
 // Modified preWarmNgrok function
@@ -53,6 +61,16 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("deleteMenuModal")
   );
 
+  // Add custom styling for active dropdown items
+  const style = document.createElement("style");
+  style.textContent = `
+    .dropdown-item.active, .dropdown-item:active {
+      background-color: #c7a07a !important; /* Yellow color */
+      color: #000 !important; /* Black text for better contrast */
+    }
+  `;
+  document.head.appendChild(style);
+
   // Add event listeners
   document.getElementById("saveMenuBtn").addEventListener("click", addMenu);
   document
@@ -61,6 +79,21 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("confirmDeleteBtn")
     .addEventListener("click", deleteMenu);
+
+  // Add navigation event listeners for menu and promo sections
+  if (menuNavLink) {
+    menuNavLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      showMenuSection();
+    });
+  }
+
+  if (promoNavLink) {
+    promoNavLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      showPromoSection();
+    });
+  }
 
   // Toggle debug info
   toggleDebugBtn.addEventListener("click", function () {
@@ -75,7 +108,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Check API connection first then load menu data
   checkAPIConnection();
+
+  // Initially hide promo section
+  if (promoSection) {
+    promoSection.style.display = "none";
+  }
 });
+
+// Show menu section and hide promo section
+function showMenuSection() {
+  if (promoSection) promoSection.style.display = "none";
+  if (menuSection) menuSection.style.display = "block";
+
+  if (promoNavLink) promoNavLink.classList.remove("active");
+  if (menuNavLink) menuNavLink.classList.add("active");
+}
+
+// Show promo section and hide menu section
+function showPromoSection() {
+  if (menuSection) menuSection.style.display = "none";
+  if (promoSection) promoSection.style.display = "block";
+
+  if (menuNavLink) menuNavLink.classList.remove("active");
+  if (promoNavLink) promoNavLink.classList.add("active");
+
+  // Load promos when switching to promo section
+  if (typeof loadPromos === "function") {
+    loadPromos();
+  }
+}
 
 // Check API connection
 async function checkAPIConnection() {
@@ -172,18 +233,18 @@ function logDebug(title, data) {
 
   const debugEntry = document.createElement("div");
   debugEntry.className = "mb-3 p-2 border-bottom";
-  
+
   // Create a pre element for better formatting of code and JSON
   const pre = document.createElement("pre");
   pre.className = "mb-0 text-wrap";
   pre.style.whiteSpace = "pre-wrap";
   pre.style.fontSize = "0.875rem";
   pre.textContent = debugText;
-  
+
   debugEntry.appendChild(pre);
 
   // Find the debug entries container and prepend the new entry
-  const entriesContainer = debugInfo.querySelector('.debug-entries');
+  const entriesContainer = debugInfo.querySelector(".debug-entries");
   entriesContainer.prepend(debugEntry);
 
   // Limit number of entries
@@ -248,20 +309,23 @@ function renderMenuTable(menus) {
     return;
   }
 
-  menus.forEach((menu) => {
+  // Sort menus by ID to ensure consistent ordering
+  menus.sort((a, b) => a.id - b.id);
+
+  menus.forEach((menu, index) => {
     const title = escapeHtml(menu.title || "");
     const category = escapeHtml(menu.category || "");
     const desc = escapeHtml(menu.description1 || "-");
 
     menuTable.innerHTML += `
       <tr>
-        <td>${menu.id}</td>
-        <td>${title}</td>
-        <td>${category}</td>
-        <td>Rp ${formatPrice(menu.price)}</td>
-        <td>${desc}</td>
+        <td class="align-middle">${index + 1}</td>
+        <td class="align-middle">${title}</td>
+        <td class="align-middle">${category}</td>
+        <td class="align-middle">Rp ${formatPrice(menu.price)}</td>
+        <td class="align-middle">${desc}</td>
         <td>
-          <button class="btn btn-sm btn-primary edit-btn" 
+          <button class="btn btn-sm btn-primary edit-btn mb-2" 
             data-id="${menu.id}">
             <i class="bi bi-pencil-square"></i> Edit
           </button>
@@ -350,7 +414,7 @@ async function fetchSingleMenu(id) {
 function previewImageFromUrl(inputId, previewId) {
   const urlInput = document.getElementById(inputId);
   const previewContainer = document.getElementById(previewId);
-  
+
   if (urlInput.value.trim()) {
     // Show preview
     previewContainer.innerHTML = `
@@ -361,28 +425,28 @@ function previewImageFromUrl(inputId, previewId) {
     `;
   } else {
     // Clear preview
-    previewContainer.innerHTML = '';
+    previewContainer.innerHTML = "";
   }
 }
 
 // Fix the event listener for the edit image URL
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
   // Add event listeners after DOM is loaded
-  const addImageUrl = document.getElementById('imageUrl');
-  const editImageUrl = document.getElementById('edit_imageUrl');
-  
+  const addImageUrl = document.getElementById("imageUrl");
+  const editImageUrl = document.getElementById("edit_imageUrl");
+
   if (addImageUrl) {
-    addImageUrl.addEventListener('blur', function() {
-      previewImageFromUrl('imageUrl', 'imageUrlPreview');
+    addImageUrl.addEventListener("blur", function () {
+      previewImageFromUrl("imageUrl", "imageUrlPreview");
     });
   }
-  
+
   if (editImageUrl) {
-    editImageUrl.addEventListener('blur', function() {
-      previewImageFromUrl('edit_imageUrl', 'editImageUrlPreview');
+    editImageUrl.addEventListener("blur", function () {
+      previewImageFromUrl("edit_imageUrl", "editImageUrlPreview");
     });
   }
-  
+
   // ... rest of your DOMContentLoaded code ...
 });
 
@@ -403,26 +467,26 @@ async function addMenu() {
   const description1 = document.getElementById("description1").value.trim();
   const description2 = document.getElementById("description2").value.trim();
   const imageUrl = document.getElementById("imageUrl").value.trim();
-  
+
   // Validate required fields
   if (!title || !category || !price || !description1 || !description2) {
     showNotification("Semua field wajib diisi", "danger");
     return;
   }
-  
+
   // Validate image URL
   if (!imageUrl) {
     showNotification("URL gambar menu wajib diisi", "danger");
     return;
   }
-  
+
   // Validate URL format
   const urlRegex = /^(http|https):\/\/[^ "]+$/;
   if (!urlRegex.test(imageUrl)) {
     showNotification("Format URL gambar tidak valid", "danger");
     return;
   }
-  
+
   // Create request data
   const requestData = {
     title,
@@ -430,7 +494,7 @@ async function addMenu() {
     price,
     description1,
     description2,
-    imageUrl
+    imageUrl,
   };
 
   showLoading(true);
@@ -441,9 +505,9 @@ async function addMenu() {
     const response = await fetchWithHeaders(`${API_URL}/tambah`, {
       method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestData)
+      body: JSON.stringify(requestData),
     });
 
     const responseText = await response.text();
@@ -490,11 +554,11 @@ function openEditModal(menu) {
   document.getElementById("edit_price").value = menu.price || 0;
   document.getElementById("edit_description1").value = menu.description1 || "";
   document.getElementById("edit_description2").value = menu.description2 || "";
-  
+
   // Set image URL
   const imageUrl = menu.image || "";
   document.getElementById("edit_imageUrl").value = imageUrl;
-  
+
   // Show image preview
   const previewContainer = document.getElementById("editImageUrlPreview");
   if (imageUrl) {
@@ -505,7 +569,7 @@ function openEditModal(menu) {
       </div>
     `;
   } else {
-    previewContainer.innerHTML = '';
+    previewContainer.innerHTML = "";
   }
 
   // Show the modal
@@ -526,34 +590,38 @@ async function updateMenu() {
   }
 
   const id = document.getElementById("edit_id").value;
-  
+
   // Get all required fields
   const title = document.getElementById("edit_title").value.trim();
   const category = document.getElementById("edit_category").value;
   const price = document.getElementById("edit_price").value;
-  const description1 = document.getElementById("edit_description1").value.trim();
-  const description2 = document.getElementById("edit_description2").value.trim();
+  const description1 = document
+    .getElementById("edit_description1")
+    .value.trim();
+  const description2 = document
+    .getElementById("edit_description2")
+    .value.trim();
   const imageUrl = document.getElementById("edit_imageUrl").value.trim();
-  
+
   // Validate required fields
   if (!title || !category || !price || !description1 || !description2) {
     showNotification("Semua field wajib diisi", "danger");
     return;
   }
-  
+
   // Validate image URL
   if (!imageUrl) {
     showNotification("URL gambar menu wajib diisi", "danger");
     return;
   }
-  
+
   // Validate URL format
   const urlRegex = /^(http|https):\/\/[^ "]+$/;
   if (!urlRegex.test(imageUrl)) {
     showNotification("Format URL gambar tidak valid", "danger");
     return;
   }
-  
+
   // Create request data object instead of FormData
   const requestData = {
     title,
@@ -561,21 +629,21 @@ async function updateMenu() {
     price: parseFloat(price).toFixed(2),
     description1,
     description2,
-    imageUrl
+    imageUrl,
   };
 
   showLoading(true);
   try {
     logDebug(`Sending PUT request to /ubah/${id} with image URL`, requestData);
-    
+
     const response = await fetchWithHeaders(`${API_URL}/ubah/${id}`, {
       method: "PUT",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(requestData)
+      body: JSON.stringify(requestData),
     });
-    
+
     const responseText = await response.text();
     logDebug("Raw API response from PUT", responseText);
 
@@ -702,3 +770,11 @@ function escapeHtml(unsafe) {
 function formatPrice(price) {
   return parseFloat(price).toLocaleString("id-ID");
 }
+
+// Make utility functions available globally for promo.js to use
+window.API_URL = API_URL;
+window.fetchWithHeaders = fetchWithHeaders;
+window.showLoading = showLoading;
+window.logDebug = logDebug;
+window.showNotification = showNotification;
+window.escapeHtml = escapeHtml;
